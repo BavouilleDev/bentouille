@@ -10,26 +10,30 @@ const RedditCard = () => {
   return (
     <BentoCard
       href="https://reddit.com/r/bavouille"
-      className="h-full flex flex-col justify-between min-h-[160px]"
+      className="h-full flex flex-col min-h-[180px]"
     >
-      {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-reddit/10 to-transparent pointer-events-none" />
+      {/* Background gradient - more vibrant */}
+      <div className="absolute inset-0 bg-gradient-to-br from-reddit/15 via-reddit/8 to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-reddit/5 to-transparent pointer-events-none" />
       
-      <div className="relative z-10 flex-1">
+      <div className="relative z-10 flex flex-col flex-1">
         <div className="flex items-center gap-3 mb-3">
-          <div className="p-2 rounded-xl bg-reddit/20">
+          <div className="p-2.5 rounded-xl bg-gradient-to-br from-reddit/30 to-reddit/15 ring-2 ring-reddit/20">
             <RedditIcon />
           </div>
         </div>
         
-        <h3 className="text-lg font-bold mb-1">Reddit</h3>
-        <p className="text-muted-foreground text-sm">Mon sub reddit ! 🔥</p>
+        <h3 className="text-lg font-bold mb-2 text-foreground">Reddit</h3>
+        <p className="text-muted-foreground text-sm leading-relaxed">Mon sub reddit ! 🔥</p>
+        
+        {/* Spacer to push button down */}
+        <div className="flex-1" />
+        
+        <button className="btn-platform bg-gradient-to-r from-reddit to-reddit/90 text-white mt-auto text-xs w-full relative z-10 shadow-lg shadow-reddit/30 hover:shadow-reddit/50 transition-all duration-300">
+          <RedditIcon className="w-3 h-3" />
+          Rejoindre
+        </button>
       </div>
-
-      <button className="btn-platform bg-reddit text-white mt-3 text-xs w-fit relative z-10">
-        <RedditIcon className="w-3 h-3" />
-        Rejoindre
-      </button>
     </BentoCard>
   );
 };

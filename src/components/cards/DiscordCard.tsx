@@ -5,26 +5,30 @@ const DiscordCard = () => {
   return (
     <BentoCard
       href="https://discord.gg/qzsNCamvSJ"
-      className="h-full flex flex-col justify-between min-h-[160px]"
+      className="h-full flex flex-col min-h-[180px]"
     >
-      {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-discord/10 to-transparent pointer-events-none" />
+      {/* Background gradient - more vibrant */}
+      <div className="absolute inset-0 bg-gradient-to-br from-discord/15 via-discord/8 to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-discord/5 to-transparent pointer-events-none" />
       
-      <div className="relative z-10 flex-1">
+      <div className="relative z-10 flex flex-col flex-1">
         <div className="flex items-center gap-3 mb-3">
-          <div className="p-2 rounded-xl bg-discord/20">
+          <div className="p-2.5 rounded-xl bg-gradient-to-br from-discord/30 to-discord/15 ring-2 ring-discord/20">
             <MessageCircle className="w-5 h-5 text-discord" />
           </div>
         </div>
         
-        <h3 className="text-lg font-bold mb-1">Discord</h3>
-        <p className="text-muted-foreground text-sm">Mon discord du sheitan 😈</p>
+        <h3 className="text-lg font-bold mb-2 text-foreground">Discord</h3>
+        <p className="text-muted-foreground text-sm leading-relaxed">Mon discord du sheitan 😈</p>
+        
+        {/* Spacer to push button down */}
+        <div className="flex-1" />
+        
+        <button className="btn-platform bg-gradient-to-r from-discord to-discord/90 text-white mt-auto text-xs w-full relative z-10 shadow-lg shadow-discord/30 hover:shadow-discord/50 transition-all duration-300">
+          <MessageCircle className="w-3 h-3" />
+          Rejoindre
+        </button>
       </div>
-
-      <button className="btn-platform bg-discord text-white mt-3 text-xs w-fit relative z-10">
-        <MessageCircle className="w-3 h-3" />
-        Rejoindre
-      </button>
     </BentoCard>
   );
 };
