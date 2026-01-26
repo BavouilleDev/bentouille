@@ -11,7 +11,7 @@ const BentoGrid = () => {
   return (
     <>
       <WaterRipple />
-      <div className="relative z-10 min-h-screen py-12 px-4">
+      <div className="relative z-10 min-h-screen py-12 px-4" style={{ isolation: 'isolate' }}>
         <div className="container max-w-4xl mx-auto">
           <BentoHeader />
 
@@ -21,24 +21,24 @@ const BentoGrid = () => {
           </div>
 
           {/* Social Grid - 4 widgets in one row */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 items-stretch">
             {/* Discord */}
-            <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
+            <div className="animate-fade-in h-full" style={{ animationDelay: '0.2s' }}>
               <DiscordCard />
             </div>
 
             {/* Twitch */}
-            <div className="animate-fade-in" style={{ animationDelay: '0.25s' }}>
+            <div className="animate-fade-in h-full" style={{ animationDelay: '0.25s' }}>
               <TwitchCard />
             </div>
 
             {/* Instagram */}
-            <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
+            <div className="animate-fade-in h-full" style={{ animationDelay: '0.3s' }}>
               <InstagramCard />
             </div>
 
             {/* Reddit */}
-            <div className="animate-fade-in" style={{ animationDelay: '0.35s' }}>
+            <div className="animate-fade-in h-full" style={{ animationDelay: '0.35s' }}>
               <RedditCard />
             </div>
           </div>
