@@ -21,7 +21,7 @@ const BentoGrid = () => {
           </div>
 
           {/* Social Grid - 4 widgets in one row */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 items-stretch">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-stretch">
             {/* Discord */}
             <div className="animate-fade-in h-full" style={{ animationDelay: '0.2s' }}>
               <DiscordCard />

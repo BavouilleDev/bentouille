@@ -5,7 +5,7 @@ const TwitchCard = () => {
   return (
     <BentoCard
       href="https://twitch.tv/bavouille"
-      className="h-full flex flex-col min-h-[180px]"
+      className="h-full flex flex-col min-h-[180px] !p-6"
     >
       {/* Background gradient - more vibrant */}
       <div className="absolute inset-0 bg-gradient-to-br from-twitch/15 via-twitch/8 to-transparent pointer-events-none" />
@@ -19,12 +19,14 @@ const TwitchCard = () => {
         </div>
         
         <h3 className="text-lg font-bold mb-2 text-foreground">Twitch</h3>
-        <p className="text-muted-foreground text-sm leading-relaxed">Ma super chaîne Twitch 🎥</p>
+        <p className="text-muted-foreground text-sm leading-relaxed">
+          Pour s'amuser en live
+        </p>
         
         {/* Spacer to push button down */}
         <div className="flex-1" />
         
-        <button className="btn-platform bg-gradient-to-r from-twitch to-twitch/90 text-white mt-auto text-xs w-full relative z-10 shadow-lg shadow-twitch/30 hover:shadow-twitch/50 transition-all duration-300">
+        <button className="btn-platform bg-gradient-to-r from-twitch to-twitch/90 text-white mt-4 text-xs w-full relative z-10 shadow-lg shadow-twitch/30 hover:shadow-twitch/50 transition-all duration-300">
           <Twitch className="w-3 h-3" />
           Suivre
         </button>

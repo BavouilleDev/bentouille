@@ -1,5 +1,6 @@
 import profileAvatar from '@/assets/profile-avatar.png';
 import { useYouTubeStats } from '@/hooks/useYouTubeStats';
+import { Emoji } from 'react-apple-emojis';
 
 const BentoHeader = () => {
   const { subscriberCountRounded, isLoading } = useYouTubeStats('bavouille');
@@ -21,14 +22,22 @@ const BentoHeader = () => {
 
       {/* Bio formatée - une compétence par ligne */}
       <div className="text-muted-foreground max-w-md leading-relaxed space-y-1">
-        <p>🎬 Monteur vidéo (Premiere Pro et After Effect)</p>
-        <p>🎨 Miniamaker en herbe (mais je ne touche pas d'herbe)</p>
+        <p>
+          <Emoji name="movie-camera" width={18} className="inline-block align-middle mr-1" />
+          Monteur vidéo (Premiere Pro et After Effect)
+        </p>
+        <p>
+          <Emoji name="artist-palette" width={18} className="inline-block align-middle mr-1" />
+          Miniamaker en herbe (mais je ne touche pas d'herbe)
+        </p>
         <p className="text-foreground/90 pt-2">
-          📺 Créateur de contenu (
+          <Emoji name="television" width={18} className="inline-block align-middle mr-1" />
+          Créateur de contenu (
           <span className="text-primary font-semibold">
             {isLoading ? '...' : subscriberCountRounded}
           </span>
-          {' '}sur ytb 🤩)
+          {' '}sur ytb{' '}
+          <Emoji name="star" width={18} className="inline-block align-middle" />)
         </p>
       </div>
     </header>
