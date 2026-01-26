@@ -1,0 +1,113 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 240 10% 6%;
+    --foreground: 0 0% 98%;
+
+    --card: 240 8% 10%;
+    --card-foreground: 0 0% 98%;
+    --card-hover: 240 8% 14%;
+
+    --popover: 240 8% 10%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 280 60% 65%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 240 8% 16%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 240 6% 20%;
+    --muted-foreground: 240 5% 65%;
+
+    --accent: 320 70% 60%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 240 6% 18%;
+    --input: 240 6% 18%;
+    --ring: 280 60% 65%;
+
+    --radius: 1.25rem;
+
+    /* Custom gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(280 60% 65%), hsl(320 70% 60%));
+    --gradient-card: linear-gradient(145deg, hsl(240 8% 12%), hsl(240 8% 8%));
+    --gradient-glow: radial-gradient(ellipse at center, hsl(280 60% 65% / 0.15), transparent 70%);
+    
+    /* Platform colors */
+    --youtube: 0 100% 50%;
+    --discord: 235 86% 65%;
+    --instagram: 340 75% 55%;
+    --reddit: 16 100% 50%;
+    --twitch: 264 100% 64%;
+
+    /* Shadows */
+    --shadow-card: 0 4px 24px -4px hsl(0 0% 0% / 0.3);
+    --shadow-glow: 0 0 40px -10px hsl(280 60% 65% / 0.4);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+@layer utilities {
+  .card-base {
+    @apply bg-card rounded-3xl p-5 transition-all duration-300 ease-out;
+    box-shadow: var(--shadow-card);
+  }
+
+  .card-hover {
+    @apply hover:scale-[1.02] hover:bg-card-hover;
+    &:hover {
+      box-shadow: var(--shadow-glow);
+    }
+  }
+
+  .gradient-text {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .glow-effect {
+    position: relative;
+    &::before {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      background: var(--gradient-primary);
+      border-radius: inherit;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: -1;
+      filter: blur(12px);
+    }
+    &:hover::before {
+      opacity: 0.5;
+    }
+  }
+
+  .btn-platform {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-200;
+    &:hover {
+      transform: translateY(-2px);
+    }
+  }
+}
