@@ -19,7 +19,7 @@
       var l = window.location;
       l.replace(
         l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
-        '/bentouille/' +
+        '/' +
         (l.pathname.split('/').length > 2 ? l.pathname.split('/').slice(pathSegmentsToKeep + 1).join('/').replace(/\/$/g, '') : '') +
         (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
         l.hash
