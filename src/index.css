@@ -79,25 +79,6 @@
     color: white;
   }
 
-  /* Pas de surlignage pour les émojis */
-  img[class*="emoji"]::selection,
-  img[class*="emoji"]::-moz-selection,
-  span[class*="emoji"]::selection,
-  span[class*="emoji"]::-moz-selection,
-  .emoji::selection,
-  .emoji::-moz-selection {
-    background-color: transparent !important;
-    color: inherit !important;
-  }
-
-  /* Désactiver le surlignage sur les images (pour les émojis) */
-  img {
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-  }
-
   body::before {
     content: '';
     position: fixed;
