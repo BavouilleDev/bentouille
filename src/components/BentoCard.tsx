@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 
 interface BentoCardProps {
@@ -9,6 +9,19 @@ interface BentoCardProps {
 }
 
 const BentoCard = ({ children, className, href, style }: BentoCardProps) => {
+  const handleMouseMove = useCallback(
+    (event: React.MouseEvent<HTMLDivElement>) => {
+      const target = event.currentTarget;
+      const rect = target.getBoundingClientRect();
+      const x = ((event.clientX - rect.left) / rect.width) * 100;
+      const y = ((event.clientY - rect.top) / rect.height) * 100;
+
+      target.style.setProperty('--glow-x', `${x}%`);
+      target.style.setProperty('--glow-y', `${y}%`);
+    },
+    []
+  );
+
   const cardContent = (
     <div
       className={cn(
@@ -16,6 +29,7 @@ const BentoCard = ({ children, className, href, style }: BentoCardProps) => {
         className
       )}
       style={style}
+      onMouseMove={handleMouseMove}
     >
       {children}
     </div>

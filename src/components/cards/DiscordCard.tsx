@@ -5,7 +5,7 @@ const DiscordCard = () => {
   return (
     <BentoCard
       href="https://discord.gg/qzsNCamvSJ"
-      className="h-full flex flex-col min-h-[180px] !p-6"
+      className="h-full flex flex-col min-h-[180px] !p-6 glow-discord"
     >
       {/* Background gradient - more vibrant */}
       <div className="absolute inset-0 bg-gradient-to-br from-discord/15 via-discord/8 to-transparent pointer-events-none" />

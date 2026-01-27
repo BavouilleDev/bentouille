@@ -6,10 +6,11 @@
 
 @layer base {
   :root {
-    --background: 240 10% 6%;
+    /* Fond global : mix entre l'actuel et le bleu sombre fourni */
+    --background: 230 45% 5%;
     --foreground: 0 0% 98%;
 
-    --card: 240 8% 10%;
+    --card: 230 35% 9%;
     --card-foreground: 0 0% 98%;
     --card-hover: 240 8% 14%;
 
@@ -19,11 +20,11 @@
     --primary: 280 60% 65%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 240 8% 16%;
+    --secondary: 230 30% 13%;
     --secondary-foreground: 0 0% 98%;
 
-    --muted: 240 6% 20%;
-    --muted-foreground: 240 5% 65%;
+    --muted: 230 25% 22%;
+    --muted-foreground: 230 12% 68%;
 
     --accent: 320 70% 60%;
     --accent-foreground: 0 0% 100%;
@@ -39,7 +40,7 @@
 
     /* Custom gradients */
     --gradient-primary: linear-gradient(135deg, hsl(280 60% 65%), hsl(320 70% 60%));
-    --gradient-card: linear-gradient(145deg, hsl(240 8% 12%), hsl(240 8% 8%));
+    --gradient-card: linear-gradient(145deg, hsl(232 35% 11%), hsl(230 40% 6%));
     --gradient-glow: radial-gradient(ellipse at center, hsl(280 60% 65% / 0.15), transparent 70%);
     
     /* Platform colors */
@@ -75,9 +76,9 @@
     width: 200%;
     height: 200%;
     background: 
-      radial-gradient(circle at 20% 30%, hsl(280 60% 65% / 0.08) 0%, transparent 50%),
-      radial-gradient(circle at 80% 70%, hsl(320 70% 60% / 0.08) 0%, transparent 50%),
-      radial-gradient(circle at 50% 50%, hsl(280 60% 65% / 0.05) 0%, transparent 70%);
+      radial-gradient(circle at 20% 30%, hsl(235 70% 35% / 0.28) 0%, transparent 55%),
+      radial-gradient(circle at 80% 70%, hsl(260 70% 55% / 0.2) 0%, transparent 55%),
+      radial-gradient(circle at 50% 50%, hsl(300 70% 60% / 0.12) 0%, transparent 75%);
     animation: light-drift 20s ease-in-out infinite;
     pointer-events: none;
     z-index: 0;
@@ -91,8 +92,8 @@
     width: 100%;
     height: 100%;
     background: 
-      radial-gradient(circle at 60% 20%, hsl(320 70% 60% / 0.06) 0%, transparent 40%),
-      radial-gradient(circle at 30% 80%, hsl(280 60% 65% / 0.06) 0%, transparent 40%);
+      radial-gradient(circle at 60% 20%, hsl(260 70% 55% / 0.18) 0%, transparent 48%),
+      radial-gradient(circle at 30% 80%, hsl(235 70% 32% / 0.24) 0%, transparent 50%);
     animation: light-drift-reverse 25s ease-in-out infinite;
     pointer-events: none;
     z-index: 0;
@@ -149,16 +150,64 @@
       content: '';
       position: absolute;
       inset: -2px;
-      background: var(--gradient-primary);
+      background:
+        radial-gradient(
+          circle at var(--glow-x, 50%) var(--glow-y, 0%),
+          hsl(0 0% 100% / 0.18),
+          transparent 55%
+        ),
+        var(--gradient-primary);
       border-radius: inherit;
       opacity: 0;
-      transition: opacity 0.3s ease;
+      transition: opacity 0.3s ease, transform 0.3s ease;
       z-index: -1;
       filter: blur(12px);
     }
     &:hover::before {
       opacity: 0.5;
+      transform: scale(1.02);
     }
+  }
+
+  /* Variantes de glow par plateforme (utilisent la couleur du logo) */
+  .glow-youtube {
+    --gradient-primary: linear-gradient(
+      135deg,
+      hsl(var(--youtube) / 0.45),
+      hsl(var(--youtube) / 0.3)
+    );
+  }
+
+  .glow-discord {
+    --gradient-primary: linear-gradient(
+      135deg,
+      hsl(var(--discord) / 0.9),
+      hsl(var(--discord) / 0.7)
+    );
+  }
+
+  .glow-instagram {
+    --gradient-primary: linear-gradient(
+      135deg,
+      hsl(var(--instagram) / 0.9),
+      hsl(var(--instagram) / 0.7)
+    );
+  }
+
+  .glow-reddit {
+    --gradient-primary: linear-gradient(
+      135deg,
+      hsl(var(--reddit) / 0.9),
+      hsl(var(--reddit) / 0.7)
+    );
+  }
+
+  .glow-twitch {
+    --gradient-primary: linear-gradient(
+      135deg,
+      hsl(var(--twitch) / 0.9),
+      hsl(var(--twitch) / 0.7)
+    );
   }
 
   .btn-platform {

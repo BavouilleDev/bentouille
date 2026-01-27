@@ -1,10 +1,7 @@
 import profileAvatar from '@/assets/profile-avatar.png';
-import { useYouTubeStats } from '@/hooks/useYouTubeStats';
 import { Emoji } from 'react-apple-emojis';
 
 const BentoHeader = () => {
-  const { subscriberCountRounded, isLoading } = useYouTubeStats('bavouille');
-
   return (
     <header className="flex flex-col items-center text-center mb-8 animate-fade-in">
       {/* Avatar avec glow effect */}
@@ -34,7 +31,7 @@ const BentoHeader = () => {
           <Emoji name="television" width={18} className="inline-block align-middle mr-1" />
           Créateur de contenu (
           <span className="text-primary font-semibold">
-            {isLoading ? '...' : subscriberCountRounded}
+            14k
           </span>
           {' '}sur ytb{' '}
           <Emoji name="star" width={18} className="inline-block align-middle" />)

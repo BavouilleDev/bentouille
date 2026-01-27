@@ -10,7 +10,7 @@ const RedditCard = () => {
   return (
     <BentoCard
       href="https://reddit.com/r/bavouille"
-      className="h-full flex flex-col min-h-[180px] !p-6"
+      className="h-full flex flex-col min-h-[180px] !p-6 glow-reddit"
     >
       {/* Background gradient - more vibrant */}
       <div className="absolute inset-0 bg-gradient-to-br from-reddit/15 via-reddit/8 to-transparent pointer-events-none" />
@@ -25,7 +25,7 @@ const RedditCard = () => {
         
         <h3 className="text-lg font-bold mb-2 text-foreground">Reddit</h3>
         <p className="text-muted-foreground text-sm leading-relaxed">
-          ... en vrai personne n'est actif
+          ... Personne n&apos;est actif
         </p>
         
         {/* Spacer to push button down */}

@@ -1,16 +1,14 @@
 import { Youtube, Play, ExternalLink } from 'lucide-react';
 import BentoCard from '@/components/BentoCard';
-import { useYouTubeStats } from '@/hooks/useYouTubeStats';
 import { useLatestVideo } from '@/hooks/useLatestVideo';
 
 const YouTubeCard = () => {
-  const { subscriberCountFormatted, isLoading: statsLoading } = useYouTubeStats('bavouille');
   const { title, thumbnail, link, isLoading: videoLoading } = useLatestVideo();
 
   return (
     <BentoCard
       href="https://youtube.com/@bavouille"
-      className="col-span-full flex flex-col md:flex-row gap-4 min-h-[200px] md:min-h-[180px]"
+      className="col-span-full flex flex-col md:flex-row gap-4 min-h-[200px] md:min-h-[180px] glow-youtube"
     >
       {/* Background gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-youtube/10 via-youtube/5 to-transparent pointer-events-none" />
@@ -66,14 +64,11 @@ const YouTubeCard = () => {
           </div>
         </div>
 
-        {/* Subscribe button avec stats */}
+        {/* Subscribe button sans compteur d'abonnés */}
         <div className="flex flex-wrap gap-3">
           <button className="btn-platform bg-youtube text-white">
             <Youtube className="w-4 h-4" />
             <span>Subscribe</span>
-            <span className="ml-2 bg-white/20 px-2 py-0.5 rounded-lg text-xs">
-              {statsLoading ? '...' : subscriberCountFormatted}
-            </span>
           </button>
           
           <a

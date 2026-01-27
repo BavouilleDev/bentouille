@@ -5,7 +5,7 @@ const InstagramCard = () => {
   return (
     <BentoCard
       href="https://instagram.com/bavouille"
-      className="h-full flex flex-col min-h-[180px] !p-6"
+      className="h-full flex flex-col min-h-[180px] !p-6 glow-instagram"
     >
       {/* Background gradient - more vibrant with holi colors */}
       <div className="absolute inset-0 bg-gradient-to-br from-instagram/15 via-instagram/8 to-transparent pointer-events-none" />
