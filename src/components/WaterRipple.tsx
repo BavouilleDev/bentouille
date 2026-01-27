@@ -17,6 +17,7 @@ const WaterRipple = () => {
   const animationRef = useRef<number>();
   const pointsRef = useRef<TrailPoint[]>([]);
   const popsRef = useRef<ClickPop[]>([]);
+  const lastPointRef = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -33,18 +34,48 @@ const WaterRipple = () => {
     resize();
     window.addEventListener('resize', resize);
 
+    const life = 500; // durée de vie réduite pour plus de fluidité
+
     const handleMouseMove = (e: MouseEvent) => {
       const now = Date.now();
+      const newPoint = { x: e.clientX, y: e.clientY };
+
+      if (lastPointRef.current) {
+        const dx = newPoint.x - lastPointRef.current.x;
+        const dy = newPoint.y - lastPointRef.current.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        // Skip si trop proche
+        if (distance < 2) {
+          return;
+        }
+
+        // Interpolation simple et efficace pour les mouvements rapides
+        if (distance > 8) {
+          const steps = Math.ceil(distance / 6);
+          const timeStep = life / (steps + 1);
+          for (let i = 1; i <= steps; i++) {
+            const t = i / (steps + 1);
+            pointsRef.current.push({
+              x: lastPointRef.current.x + dx * t,
+              y: lastPointRef.current.y + dy * t,
+              createdAt: now - (steps + 1 - i) * timeStep,
+            });
+          }
+        }
+      }
 
       pointsRef.current.push({
-        x: e.clientX,
-        y: e.clientY,
+        x: newPoint.x,
+        y: newPoint.y,
         createdAt: now,
       });
 
-      // Garder une petite traîne de points pour faire le "ver de terre"
-      if (pointsRef.current.length > 80) {
-        pointsRef.current.splice(0, pointsRef.current.length - 80);
+      lastPointRef.current = newPoint;
+
+      // Limiter le nombre de points
+      if (pointsRef.current.length > 150) {
+        pointsRef.current.splice(0, pointsRef.current.length - 150);
       }
     };
 
@@ -63,9 +94,8 @@ const WaterRipple = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.save();
       ctx.globalCompositeOperation = 'screen';
-      ctx.filter = 'blur(6px)';
-
-      const life = 700; // durée de vie d'un point en ms
+      ctx.globalAlpha = 0.85; // Réduire légèrement l'opacité globale pour éviter les superpositions trop lumineuses
+      ctx.filter = 'blur(8px)';
 
       // Ne garder que les points encore "vivants"
       pointsRef.current = pointsRef.current.filter(
@@ -75,45 +105,58 @@ const WaterRipple = () => {
       const points = pointsRef.current;
 
       if (points.length > 1) {
-        // Tracé continu type "ver de terre"
-        ctx.beginPath();
-        ctx.moveTo(points[0].x, points[0].y);
-
-        for (let i = 1; i < points.length - 1; i++) {
+        // Dessiner segment par segment pour éviter les bugs de croisement
+        // Chaque segment est dessiné indépendamment avec sa propre opacité
+        for (let i = 0; i < points.length - 1; i++) {
           const current = points[i];
           const next = points[i + 1];
-          const cx = (current.x + next.x) / 2;
-          const cy = (current.y + next.y) / 2;
-          ctx.quadraticCurveTo(current.x, current.y, cx, cy);
+          
+          const currentAge = now - current.createdAt;
+          const nextAge = now - next.createdAt;
+          
+          if (currentAge > life || nextAge > life) continue;
+          
+          const currentT = currentAge / life;
+          const nextT = nextAge / life;
+          
+          // Opacité qui fade progressivement (légèrement réduite pour éviter les superpositions)
+          const currentOpacity = 0.14 * (1 - currentT);
+          const nextOpacity = 0.14 * (1 - nextT);
+          
+          // Gradient pour ce segment
+          const gradient = ctx.createLinearGradient(
+            current.x,
+            current.y,
+            next.x,
+            next.y
+          );
+          
+          gradient.addColorStop(0, `hsla(320, 70%, 60%, ${currentOpacity})`);
+          gradient.addColorStop(0.5, `hsla(300, 70%, 65%, ${(currentOpacity + nextOpacity) / 2})`);
+          gradient.addColorStop(1, `hsla(280, 60%, 65%, ${nextOpacity})`);
+          
+          ctx.beginPath();
+          ctx.moveTo(current.x, current.y);
+          
+          if (i === 0 || points.length === 2) {
+            ctx.lineTo(next.x, next.y);
+          } else {
+            const midX = (current.x + next.x) / 2;
+            const midY = (current.y + next.y) / 2;
+            ctx.quadraticCurveTo(current.x, current.y, midX, midY);
+            ctx.lineTo(next.x, next.y);
+          }
+          
+          ctx.strokeStyle = gradient;
+          ctx.lineWidth = 24;
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          ctx.stroke();
         }
-
-        const last = points[points.length - 1];
-        ctx.lineTo(last.x, last.y);
-
-        // Opacité globale plus faible pour que ce soit moins lumineux
-        const headAge = now - last.createdAt;
-        const headT = Math.min(headAge / life, 1);
-        const baseOpacity = 0.16 * (1 - headT * 0.3);
-
-        // Dégradé le long du ver, plus lumineux au centre
-        const gradient = ctx.createLinearGradient(
-          points[0].x,
-          points[0].y,
-          last.x,
-          last.y
-        );
-        gradient.addColorStop(0, 'hsla(320, 70%, 60%, 0)');
-        gradient.addColorStop(0.2, `hsla(300, 70%, 65%, ${baseOpacity * 0.4})`);
-        gradient.addColorStop(0.5, `hsla(320, 70%, 60%, ${baseOpacity})`);
-        gradient.addColorStop(0.8, `hsla(280, 60%, 65%, ${baseOpacity * 0.45})`);
-        gradient.addColorStop(1, 'hsla(280, 60%, 65%, 0)');
-
-        ctx.strokeStyle = gradient;
-        ctx.lineWidth = 22;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.stroke();
       }
+
+      // Réinitialiser l'opacité globale pour les pops
+      ctx.globalAlpha = 1.0;
 
       // Pops de clic
       const popLife = 480;
