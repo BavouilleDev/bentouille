@@ -12,7 +12,6 @@ interface LatestVideo {
 
 // Nouveau Channel ID pour Bavouille
 const CHANNEL_ID = 'UCcOsFB2AcE-QDDX7bixmaiA';
-const CORS_PROXY = 'https://corsproxy.io/?';
 
 export const useLatestVideo = (): LatestVideo => {
   const [video, setVideo] = useState<LatestVideo>({
@@ -29,7 +28,7 @@ export const useLatestVideo = (): LatestVideo => {
     const fetchLatestVideo = async () => {
       try {
         const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`;
-        const response = await fetch(`${CORS_PROXY}${encodeURIComponent(rssUrl)}`);
+        const response = await fetch(rssUrl);
         
         if (!response.ok) {
           throw new Error('RSS feed non disponible');

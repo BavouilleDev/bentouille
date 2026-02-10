@@ -1,23 +1,23 @@
 import { useEffect, useRef } from 'react';
 
-interface TrailPoint {
+interface Bubble {
   x: number;
   y: number;
   createdAt: number;
+  isClick?: boolean;
 }
 
-interface ClickPop {
-  x: number;
-  y: number;
-  createdAt: number;
-}
+const BUBBLE_LIFE_MS = 500;
+const MIN_RADIUS = 5;
+const MAX_RADIUS = 24;
+const MIN_DISTANCE = 28; // moins de bulles : distance plus grande
+const MAX_BUBBLES = 35;
 
 const WaterRipple = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>();
-  const pointsRef = useRef<TrailPoint[]>([]);
-  const popsRef = useRef<ClickPop[]>([]);
-  const lastPointRef = useRef<{ x: number; y: number } | null>(null);
+  const bubblesRef = useRef<Bubble[]>([]);
+  const lastPosRef = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -34,162 +34,83 @@ const WaterRipple = () => {
     resize();
     window.addEventListener('resize', resize);
 
-    const life = 500; // durée de vie réduite pour plus de fluidité
-
     const handleMouseMove = (e: MouseEvent) => {
-      const now = Date.now();
-      const newPoint = { x: e.clientX, y: e.clientY };
+      const x = e.clientX;
+      const y = e.clientY;
 
-      if (lastPointRef.current) {
-        const dx = newPoint.x - lastPointRef.current.x;
-        const dy = newPoint.y - lastPointRef.current.y;
+      const last = lastPosRef.current;
+      if (last) {
+        const dx = x - last.x;
+        const dy = y - last.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
+        if (distance < MIN_DISTANCE) return;
 
-        // Skip si trop proche
-        if (distance < 2) {
-          return;
-        }
-
-        // Interpolation simple et efficace pour les mouvements rapides
-        if (distance > 8) {
-          const steps = Math.ceil(distance / 6);
-          const timeStep = life / (steps + 1);
-          for (let i = 1; i <= steps; i++) {
-            const t = i / (steps + 1);
-            pointsRef.current.push({
-              x: lastPointRef.current.x + dx * t,
-              y: lastPointRef.current.y + dy * t,
-              createdAt: now - (steps + 1 - i) * timeStep,
-            });
-          }
+        // Une seule bulle interpolée pour garder une légère chenille sans en abuser
+        const steps = Math.min(Math.floor(distance / MIN_DISTANCE), 1);
+        for (let i = 1; i <= steps; i++) {
+          const t = i / (steps + 1);
+          bubblesRef.current.push({
+            x: last.x + dx * t,
+            y: last.y + dy * t,
+            createdAt: Date.now() - (steps - i) * 20,
+          });
         }
       }
 
-      pointsRef.current.push({
-        x: newPoint.x,
-        y: newPoint.y,
-        createdAt: now,
+      bubblesRef.current.push({
+        x,
+        y,
+        createdAt: Date.now(),
       });
+      lastPosRef.current = { x, y };
 
-      lastPointRef.current = newPoint;
-
-      // Limiter le nombre de points
-      if (pointsRef.current.length > 150) {
-        pointsRef.current.splice(0, pointsRef.current.length - 150);
+      if (bubblesRef.current.length > MAX_BUBBLES) {
+        bubblesRef.current = bubblesRef.current.slice(-MAX_BUBBLES);
       }
     };
 
     const handleClick = (e: MouseEvent) => {
-      const now = Date.now();
-      popsRef.current.push({
+      bubblesRef.current.push({
         x: e.clientX,
         y: e.clientY,
-        createdAt: now,
+        createdAt: Date.now(),
+        isClick: true,
       });
     };
 
     const animate = () => {
       const now = Date.now();
-
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.save();
-      ctx.globalCompositeOperation = 'screen';
-      ctx.globalAlpha = 0.85; // Réduire légèrement l'opacité globale pour éviter les superpositions trop lumineuses
-      ctx.filter = 'blur(8px)';
 
-      // Ne garder que les points encore "vivants"
-      pointsRef.current = pointsRef.current.filter(
-        (point) => now - point.createdAt <= life
-      );
+      const clickLife = BUBBLE_LIFE_MS * 1.2;
 
-      const points = pointsRef.current;
+      bubblesRef.current = bubblesRef.current.filter((b) => {
+        const life = b.isClick ? clickLife : BUBBLE_LIFE_MS;
+        const age = now - b.createdAt;
+        if (age > life) return false;
 
-      if (points.length > 1) {
-        // Dessiner segment par segment pour éviter les bugs de croisement
-        // Chaque segment est dessiné indépendamment avec sa propre opacité
-        for (let i = 0; i < points.length - 1; i++) {
-          const current = points[i];
-          const next = points[i + 1];
-          
-          const currentAge = now - current.createdAt;
-          const nextAge = now - next.createdAt;
-          
-          if (currentAge > life || nextAge > life) continue;
-          
-          const currentT = currentAge / life;
-          const nextT = nextAge / life;
-          
-          // Opacité qui fade progressivement (légèrement réduite pour éviter les superpositions)
-          const currentOpacity = 0.14 * (1 - currentT);
-          const nextOpacity = 0.14 * (1 - nextT);
-          
-          // Gradient pour ce segment
-          const gradient = ctx.createLinearGradient(
-            current.x,
-            current.y,
-            next.x,
-            next.y
-          );
-          
-          gradient.addColorStop(0, `hsla(320, 70%, 60%, ${currentOpacity})`);
-          gradient.addColorStop(0.5, `hsla(300, 70%, 65%, ${(currentOpacity + nextOpacity) / 2})`);
-          gradient.addColorStop(1, `hsla(280, 60%, 65%, ${nextOpacity})`);
-          
-          ctx.beginPath();
-          ctx.moveTo(current.x, current.y);
-          
-          if (i === 0 || points.length === 2) {
-            ctx.lineTo(next.x, next.y);
-          } else {
-            const midX = (current.x + next.x) / 2;
-            const midY = (current.y + next.y) / 2;
-            ctx.quadraticCurveTo(current.x, current.y, midX, midY);
-            ctx.lineTo(next.x, next.y);
-          }
-          
-          ctx.strokeStyle = gradient;
-          ctx.lineWidth = 24;
-          ctx.lineCap = 'round';
-          ctx.lineJoin = 'round';
-          ctx.stroke();
-        }
-      }
+        const t = age / life; // 0 -> 1
+        const radiusScale = b.isClick ? 1.25 : 1;
+        const radius = (MIN_RADIUS + t * (MAX_RADIUS - MIN_RADIUS)) * radiusScale;
+        const baseOpacity = b.isClick ? 0.7 : 0.35;
+        const opacity = baseOpacity * (1 - t);
 
-      // Réinitialiser l'opacité globale pour les pops
-      ctx.globalAlpha = 1.0;
+        // Glow (plus marqué pour le clic)
+        ctx.save();
+        ctx.shadowBlur = b.isClick ? 12 : 6;
+        ctx.shadowColor = `rgba(180, 130, 220, ${opacity * (b.isClick ? 0.9 : 0.5)})`;
 
-      // Pops de clic
-      const popLife = 480;
-      popsRef.current = popsRef.current.filter((pop) => {
-        const age = now - pop.createdAt;
-        if (age > popLife) return false;
-
-        const t = age / popLife;
-        const radius = 12 + t * 60;
-        const opacity = 0.3 * (1 - t);
-
-        const gradient = ctx.createRadialGradient(
-          pop.x,
-          pop.y,
-          0,
-          pop.x,
-          pop.y,
-          radius
-        );
-
-        gradient.addColorStop(0, `hsla(320, 70%, 60%, ${opacity})`);
-        gradient.addColorStop(0.4, `hsla(300, 70%, 65%, ${opacity * 0.6})`);
-        gradient.addColorStop(1, 'hsla(280, 60%, 65%, 0)');
-
-        ctx.fillStyle = gradient;
         ctx.beginPath();
-        ctx.arc(pop.x, pop.y, radius, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.arc(b.x, b.y, radius, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(160, 100, 200, ${opacity * (b.isClick ? 0.9 : 0.6)})`;
+        ctx.lineWidth = b.isClick ? 2.5 : 1.5;
+        ctx.stroke();
 
+        ctx.globalAlpha = 1;
+
+        ctx.restore();
         return true;
       });
-
-      ctx.restore();
 
       animationRef.current = requestAnimationFrame(animate);
     };
@@ -212,7 +133,7 @@ const WaterRipple = () => {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none z-0"
-      style={{ mixBlendMode: 'screen' }}
+      aria-hidden
     />
   );
 };

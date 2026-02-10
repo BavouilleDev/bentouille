@@ -79,6 +79,17 @@
     color: white;
   }
 
+  /* Désactiver le surlignage rose sur les émojis */
+  .emoji-no-selection::selection {
+    background-color: transparent;
+    color: inherit;
+  }
+
+  .emoji-no-selection::-moz-selection {
+    background-color: transparent;
+    color: inherit;
+  }
+
   body::before {
     content: '';
     position: fixed;

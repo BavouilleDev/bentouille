@@ -20,21 +20,21 @@ const BentoHeader = () => {
       {/* Bio formatée - une compétence par ligne */}
       <div className="text-muted-foreground max-w-md leading-relaxed space-y-1">
         <p>
-          <Emoji name="movie-camera" width={18} className="inline-block align-middle mr-1" />
+          <Emoji name="movie-camera" width={18} className="emoji-no-selection inline-block align-middle mr-1" />
           Monteur vidéo (Premiere Pro et After Effect)
         </p>
         <p>
-          <Emoji name="artist-palette" width={18} className="inline-block align-middle mr-1" />
+          <Emoji name="artist-palette" width={18} className="emoji-no-selection inline-block align-middle mr-1" />
           Miniamaker en herbe (mais je ne touche pas d'herbe)
         </p>
         <p className="text-foreground/90 pt-2">
-          <Emoji name="television" width={18} className="inline-block align-middle mr-1" />
+          <Emoji name="television" width={18} className="emoji-no-selection inline-block align-middle mr-1" />
           Créateur de contenu (
           <span className="text-primary font-semibold">
             14k
           </span>
           {' '}sur ytb{' '}
-          <Emoji name="star" width={18} className="inline-block align-middle" />)
+          <Emoji name="star" width={18} className="emoji-no-selection inline-block align-middle" />)
         </p>
       </div>
     </header>
