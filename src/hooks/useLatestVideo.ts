@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { getYouTubeDataWithCache } from './youtubeApiClient';
 
-interface LatestVideo {
+interface LatestVideoState {
   title: string;
   videoId: string;
   link: string;
@@ -10,11 +11,8 @@ interface LatestVideo {
   error: string | null;
 }
 
-// Nouveau Channel ID pour Bavouille
-const CHANNEL_ID = 'UCcOsFB2AcE-QDDX7bixmaiA';
-
-export const useLatestVideo = (): LatestVideo => {
-  const [video, setVideo] = useState<LatestVideo>({
+export const useLatestVideo = (): LatestVideoState => {
+  const [state, setState] = useState<LatestVideoState>({
     title: '',
     videoId: '',
     link: '',
@@ -25,72 +23,61 @@ export const useLatestVideo = (): LatestVideo => {
   });
 
   useEffect(() => {
-    const fetchLatestVideo = async () => {
+    let cancelled = false;
+
+    const load = async () => {
       try {
-        const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`;
-        const response = await fetch(rssUrl);
-        
-        if (!response.ok) {
-          throw new Error('RSS feed non disponible');
-        }
-        
-        const xmlText = await response.text();
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
-        
-        // Récupérer la première vraie vidéo (pas un Short)
-        const entries = Array.from(xmlDoc.querySelectorAll('entry'));
+        const data = await getYouTubeDataWithCache();
 
-        const validEntry = entries.find((entry) => {
-          const linkHref = entry.querySelector('link')?.getAttribute('href') || '';
-          // On ignore les Shorts qui ont une URL de type /shorts/...
-          return !linkHref.includes('/shorts/');
-        });
+        if (cancelled) return;
 
-        const entry = validEntry ?? entries[0];
-
-        if (!entry) {
-          throw new Error('Aucune vidéo trouvée');
+        if (!data.latestVideo) {
+          setState((prev) => ({
+            ...prev,
+            isLoading: false,
+            error: 'Aucune vidéo trouvée',
+          }));
+          return;
         }
 
-        const title = entry.querySelector('title')?.textContent || 'Dernière vidéo';
-        const videoId = entry.querySelector('yt\\:videoId, videoId')?.textContent || '';
-        const link =
-          entry.querySelector('link')?.getAttribute('href') ||
-          `https://youtube.com/watch?v=${videoId}`;
-        const published = entry.querySelector('published')?.textContent || '';
-        const thumbnail = `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`;
-
-        setVideo({
-          title,
-          videoId,
-          link,
-          thumbnail,
-          published,
+        setState({
+          title: data.latestVideo.title,
+          videoId: data.latestVideo.videoId,
+          link: data.latestVideo.link,
+          thumbnail: data.latestVideo.thumbnail,
+          published: data.latestVideo.published,
           isLoading: false,
           error: null,
         });
       } catch (error) {
-        setVideo({
+        if (cancelled) return;
+
+        const message =
+          error instanceof Error
+            ? error.message
+            : 'Impossible de charger la dernière vidéo';
+
+        setState({
           title: '',
           videoId: '',
           link: '',
           thumbnail: '',
           published: '',
           isLoading: false,
-          error: 'Impossible de charger la dernière vidéo',
+          error: message,
         });
       }
     };
 
-    fetchLatestVideo();
-    
-    // Rafraîchir toutes les 10 minutes
-    const interval = setInterval(fetchLatestVideo, 10 * 60 * 1000);
-    return () => clearInterval(interval);
+    load();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  return video;
+  return state;
 };
 
 export default useLatestVideo;
+

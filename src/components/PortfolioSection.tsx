@@ -76,7 +76,7 @@ const PortfolioSection = () => {
             href={thumb.href}
             target="_blank"
             rel="noopener noreferrer"
-            className="group relative aspect-video rounded-2xl overflow-hidden cursor-pointer animate-fade-in"
+            className={`group relative aspect-video rounded-2xl overflow-hidden cursor-pointer animate-fade-in ${index === 6 ? 'sm:col-span-2 sm:max-w-[calc((100%-1rem)/2)] sm:mx-auto' : ''}`}
             style={{ animationDelay: `${0.6 + index * 0.1}s` }}
           >
             <img

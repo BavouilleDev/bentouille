@@ -1,11 +1,14 @@
 import profileAvatar from '@/assets/profile-avatar.png';
 import { Emoji } from 'react-apple-emojis';
+import { useYouTubeStats } from '@/hooks/useYouTubeStats';
 
 const BentoHeader = () => {
+  const { formattedSubscribers } = useYouTubeStats();
+
   return (
     <header className="flex flex-col items-center text-center mb-8 animate-fade-in">
       {/* Avatar avec glow effect */}
-      <div className="relative mb-4">
+      <div className="relative mb-4 emoji-no-selection">
         <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent rounded-full blur-xl opacity-50 animate-pulse-glow" />
         <img
           src={profileAvatar}
@@ -31,7 +34,7 @@ const BentoHeader = () => {
           <Emoji name="television" width={18} className="emoji-no-selection inline-block align-middle mr-1" />
           Créateur de contenu (
           <span className="text-primary font-semibold">
-            14k
+            {formattedSubscribers || '14k'}
           </span>
           {' '}sur ytb{' '}
           <Emoji name="star" width={18} className="emoji-no-selection inline-block align-middle" />)

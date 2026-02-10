@@ -1,9 +1,11 @@
 import { Youtube, Play, ExternalLink } from 'lucide-react';
 import BentoCard from '@/components/BentoCard';
 import { useLatestVideo } from '@/hooks/useLatestVideo';
+import { useYouTubeStats } from '@/hooks/useYouTubeStats';
 
 const YouTubeCard = () => {
   const { title, thumbnail, link, isLoading: videoLoading } = useLatestVideo();
+  const { formattedSubscribers, isLoading: statsLoading } = useYouTubeStats();
 
   return (
     <BentoCard
@@ -50,7 +52,18 @@ const YouTubeCard = () => {
             <div className="p-2 rounded-xl bg-youtube/20">
               <Youtube className="w-6 h-6 text-youtube" />
             </div>
-            <span className="text-sm font-medium text-muted-foreground">YouTube</span>
+            <div className="flex flex-col">
+              <span className="text-sm font-medium text-muted-foreground">
+                YouTube
+              </span>
+              <span className="text-xs text-muted-foreground/70">
+                {statsLoading
+                  ? 'Chargement des abonnés...'
+                  : formattedSubscribers
+                  ? `${formattedSubscribers} abonnés`
+                  : ''}
+              </span>
+            </div>
           </div>
           
           <h2 className="text-xl font-bold mb-2">Ma chaîne principale !!!</h2>
@@ -64,11 +77,10 @@ const YouTubeCard = () => {
           </div>
         </div>
 
-        {/* Subscribe button sans compteur d'abonnés */}
         <div className="flex flex-wrap gap-3">
           <button className="btn-platform bg-youtube text-white">
             <Youtube className="w-4 h-4" />
-            <span>Subscribe</span>
+            <span>S&apos;abonner</span>
           </button>
           
           <a
