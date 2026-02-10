@@ -13,7 +13,7 @@ const BentoHeader = () => {
         <img
           src={profileAvatar}
           alt="Bavouille"
-          className="relative w-28 h-28 rounded-full object-cover border-4 border-card"
+          className="emoji-no-selection relative w-28 h-28 rounded-full object-cover border-4 border-card"
         />
       </div>
 

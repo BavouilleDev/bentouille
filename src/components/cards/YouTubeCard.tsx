@@ -1,11 +1,9 @@
 import { Youtube, Play, ExternalLink } from 'lucide-react';
 import BentoCard from '@/components/BentoCard';
 import { useLatestVideo } from '@/hooks/useLatestVideo';
-import { useYouTubeStats } from '@/hooks/useYouTubeStats';
 
 const YouTubeCard = () => {
   const { title, thumbnail, link, isLoading: videoLoading } = useLatestVideo();
-  const { formattedSubscribers, isLoading: statsLoading } = useYouTubeStats();
 
   return (
     <BentoCard
@@ -16,7 +14,7 @@ const YouTubeCard = () => {
       <div className="absolute inset-0 bg-gradient-to-br from-youtube/10 via-youtube/5 to-transparent pointer-events-none" />
       
       {/* Thumbnail de la dernière vidéo */}
-      <div className="relative z-10 w-full md:w-2/5 flex-shrink-0">
+      <div className="relative z-10 w-full md:w-2/5 flex-shrink-0 emoji-no-selection">
         <a 
           href={link}
           target="_blank"
@@ -28,7 +26,7 @@ const YouTubeCard = () => {
             <img
               src={thumbnail}
               alt={title}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              className="emoji-no-selection w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
           )}
           {videoLoading && (
@@ -52,25 +50,16 @@ const YouTubeCard = () => {
             <div className="p-2 rounded-xl bg-youtube/20">
               <Youtube className="w-6 h-6 text-youtube" />
             </div>
-            <div className="flex flex-col">
-              <span className="text-sm font-medium text-muted-foreground">
-                YouTube
-              </span>
-              <span className="text-xs text-muted-foreground/70">
-                {statsLoading
-                  ? 'Chargement des abonnés...'
-                  : formattedSubscribers
-                  ? `${formattedSubscribers} abonnés`
-                  : ''}
-              </span>
-            </div>
+            <span className="text-sm font-medium text-muted-foreground">
+              YouTube
+            </span>
           </div>
           
           <h2 className="text-xl font-bold mb-2">Ma chaîne principale !!!</h2>
           
           {/* Latest video title */}
           <div className="flex items-center gap-2 text-muted-foreground text-sm mb-4">
-            <span className="text-xs px-2 py-0.5 bg-youtube/20 text-youtube rounded-full">Dernière vidéo</span>
+            <span className="text-xs px-2 py-0.5 bg-youtube/20 text-youtube rounded-full whitespace-nowrap text-center inline-block">Dernière vidéo</span>
             <span className="line-clamp-1">
               {videoLoading ? 'Chargement...' : title}
             </span>

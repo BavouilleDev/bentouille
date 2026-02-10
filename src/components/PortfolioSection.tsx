@@ -76,13 +76,13 @@ const PortfolioSection = () => {
             href={thumb.href}
             target="_blank"
             rel="noopener noreferrer"
-            className={`group relative aspect-video rounded-2xl overflow-hidden cursor-pointer animate-fade-in ${index === 6 ? 'sm:col-span-2 sm:max-w-[calc((100%-1rem)/2)] sm:mx-auto' : ''}`}
+            className={`emoji-no-selection group relative aspect-video rounded-2xl overflow-hidden cursor-pointer animate-fade-in ${index === 6 ? 'sm:col-span-2 sm:max-w-[calc((100%-1rem)/2)] sm:mx-auto' : ''}`}
             style={{ animationDelay: `${0.6 + index * 0.1}s` }}
           >
             <img
               src={thumb.src}
               alt={thumb.alt}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              className="emoji-no-selection w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">

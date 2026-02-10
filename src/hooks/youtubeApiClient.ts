@@ -12,7 +12,7 @@ export interface YouTubeData {
   fetchedAt: number;
 }
 
-const API_KEY = 'AIzaSyBUhCGaBsBEQQU4pve3ygKiG1q9IXapO5s';
+const API_KEY = 'AIzaSyDTwzQymyfida5ztaV3L_mkZq6LCxErjtg';
 const CHANNEL_ID = 'UCcOsFB2AcE-QDDX7bixmaiA';
 
 const CACHE_KEY = 'yt_bavouille_data_v1';
@@ -49,6 +49,22 @@ function formatThumbnailFromId(videoId: string): string {
   if (!videoId) return '';
   // maxresdefault peut ne pas exister pour toutes les vidéos, mais c'est OK pour un usage front.
   return `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`;
+}
+
+/** Décode les entités HTML et normalise les apostrophes dans le titre (ex. &#39; → ', ʼ → ') */
+function decodeHtmlEntities(str: string): string {
+  if (!str) return str;
+  return str
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;|&apos;|&#x27;/gi, "'")
+    .replace(/&#(\d+);/g, (_, code) => String.fromCodePoint(Number(code)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, code) =>
+      String.fromCodePoint(parseInt(code, 16))
+    )
+    .replace(/[\u2018\u2019\u201A\u2032\u2035]/g, "'"); // typographic apostrophes → ASCII
 }
 
 async function fetchJson<T>(url: string): Promise<T> {
@@ -116,8 +132,9 @@ async function fetchYouTubeDataFromApi(): Promise<YouTubeData> {
   let latestVideo: YouTubeLatestVideo | null = null;
   if (item && item.id?.videoId) {
     const videoId = item.id.videoId;
+    const rawTitle = item.snippet?.title || 'Dernière vidéo';
     latestVideo = {
-      title: item.snippet?.title || 'Dernière vidéo',
+      title: decodeHtmlEntities(rawTitle),
       videoId,
       link: `https://youtube.com/watch?v=${videoId}`,
       thumbnail: formatThumbnailFromId(videoId),
@@ -139,6 +156,16 @@ export async function getYouTubeDataWithCache(): Promise<YouTubeData> {
   // 1) Essayer le cache
   const cached = readCache();
   if (cached) {
+    // Toujours décoder le titre au retour (corrige ancien cache ou encodage API)
+    if (cached.latestVideo?.title) {
+      return {
+        ...cached,
+        latestVideo: {
+          ...cached.latestVideo,
+          title: decodeHtmlEntities(cached.latestVideo.title),
+        },
+      };
+    }
     return cached;
   }
 
