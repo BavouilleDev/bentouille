@@ -2,11 +2,11 @@ import profileAvatar from '@/assets/profile-avatar.png';
 import { Emoji } from 'react-apple-emojis';
 import { useYouTubeStats } from '@/hooks/useYouTubeStats';
 import { useState } from 'react';
+import type React from 'react';
 
-const ConfettiExplosion = ({ trigger }: { trigger: number }) => {
-  if (!trigger) return null;
-
-  const pieces = Array.from({ length: 14 });
+const ConfettiBurst = () => {
+  const pieceCount = 14;
+  const pieces = Array.from({ length: pieceCount });
 
   return (
     <div
@@ -14,20 +14,27 @@ const ConfettiExplosion = ({ trigger }: { trigger: number }) => {
       aria-hidden="true"
     >
       {pieces.map((_, index) => {
-        const angle = (index / pieces.length) * Math.PI * 2;
-        const distance = 26;
+        const baseAngle = (index / pieceCount) * Math.PI * 2;
+        const angleJitter = (Math.random() - 0.5) * (Math.PI / 6); // +/- 15°
+        const angle = baseAngle + angleJitter;
+
+        const baseDistance = 26;
+        const distance = baseDistance + Math.random() * 10; // 26 à 36 px
+
         const tx = Math.cos(angle) * distance;
         const ty = Math.sin(angle) * distance;
 
+        const delay = index * 15 + Math.random() * 80; // léger jitter dans le timing
+
         return (
           <span
-            key={`${trigger}-${index}`}
+            key={index}
             className="confetti-piece"
             style={
               {
                 '--tx': `${tx}px`,
                 '--ty': `${ty}px`,
-                '--delay': `${index * 15}ms`,
+                '--delay': `${delay}ms`,
               } as React.CSSProperties
             }
           />
@@ -39,11 +46,15 @@ const ConfettiExplosion = ({ trigger }: { trigger: number }) => {
 
 const BentoHeader = () => {
   const { formattedSubscribers } = useYouTubeStats();
-  const [confettiTrigger, setConfettiTrigger] = useState(0);
+  const [confettiBursts, setConfettiBursts] = useState<number[]>([]);
 
   const handleStarClick = (event: React.MouseEvent) => {
     event.stopPropagation();
-    setConfettiTrigger((prev) => prev + 1);
+    setConfettiBursts((prev) => {
+      const nextId = Date.now();
+      const trimmed = prev.slice(-5); // éviter l'accumulation infinie dans le DOM
+      return [...trimmed, nextId];
+    });
   };
 
   return (
@@ -63,21 +74,22 @@ const BentoHeader = () => {
 
       {/* Bio formatée - une compétence par ligne */}
       <div className="text-muted-foreground max-w-md leading-relaxed space-y-1">
-        <p>
-          <Emoji name="movie-camera" width={18} className="emoji-no-selection inline-block align-middle mr-1" />
-          Monteur vidéo (Premiere Pro et After Effect)
+        <p className="flex items-center justify-center gap-2">
+          <Emoji name="movie-camera" width={18} className="emoji-no-selection" />
+          <span>Monteur vidéo (Premiere Pro et After Effect)</span>
         </p>
-        <p>
-          <Emoji name="artist-palette" width={18} className="emoji-no-selection inline-block align-middle mr-1" />
-          Miniamaker en herbe (mais je ne touche pas d'herbe)
+        <p className="flex items-center justify-center gap-2">
+          <Emoji name="artist-palette" width={18} className="emoji-no-selection" />
+          <span>Miniamaker en herbe (mais je ne touche pas d'herbe)</span>
         </p>
-        <p className="text-foreground/90 pt-2">
-          <Emoji name="television" width={18} className="emoji-no-selection inline-block align-middle mr-1" />
-          Créateur de contenu (
-          <span className="text-primary font-semibold">
-            {formattedSubscribers || '14k'}
-          </span>
-          {' '}sur ytb{' '}
+        <p className="text-foreground/90 pt-2 flex items-center justify-center gap-2">
+          <Emoji name="television" width={18} className="emoji-no-selection" />
+          <span>
+            Créateur de contenu (
+            <span className="text-primary font-semibold">
+              {formattedSubscribers || '14k'}
+            </span>
+            {' '}sur ytb{' '}
           <button
             type="button"
             onClick={handleStarClick}
@@ -88,12 +100,15 @@ const BentoHeader = () => {
               <Emoji
                 name="star"
                 width={18}
-                className="emoji-no-selection inline-block align-middle"
+                className="emoji-no-selection"
               />
-              <ConfettiExplosion trigger={confettiTrigger} />
+              {confettiBursts.map((id) => (
+                <ConfettiBurst key={id} />
+              ))}
             </span>
           </button>
           )
+          </span>
         </p>
       </div>
     </header>

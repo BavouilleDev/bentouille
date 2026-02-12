@@ -257,16 +257,35 @@
     }
   }
 
+  /* Variante sans mouvement / shimmer au hover (pour le bouton "Voir la vidéo") */
+  .btn-no-hover-motion {
+    transform: none !important;
+    filter: none !important;
+  }
+
+  .btn-no-hover-motion::before {
+    display: none !important;
+  }
+
+  .btn-no-hover-motion:hover {
+    transform: none !important;
+    filter: none !important;
+  }
+
+  .btn-no-hover-motion:hover::before {
+    display: none !important;
+  }
+
   .confetti-piece {
     position: absolute;
     left: 50%;
     top: 50%;
-    width: 6px;
-    height: 12px;
+    width: 8px;
+    height: 8px;
     border-radius: 999px;
     opacity: 0;
-    transform: translate(-50%, -50%);
-    animation: confetti-pop 520ms ease-out forwards;
+    transform: translate(-50%, -50%) scale(0.8);
+    animation: confetti-pop 520ms linear forwards;
     animation-delay: var(--delay, 0ms);
   }
 
@@ -288,11 +307,20 @@
 
   @keyframes confetti-pop {
     0% {
-      opacity: 0;
-      transform: translate(-50%, -50%) scale(0.8);
+      opacity: 0.9;
+      transform: translate(
+          calc(-50% + var(--tx, 0px) * 0.15),
+          calc(-50% + var(--ty, 0px) * 0.15)
+        )
+        scale(1);
     }
-    20% {
-      opacity: 1;
+    60% {
+      opacity: 0.5;
+      transform: translate(
+          calc(-50% + var(--tx, 0px) * 0.7),
+          calc(-50% + var(--ty, 0px) * 0.7)
+        )
+        scale(0.96);
     }
     100% {
       opacity: 0;
@@ -301,6 +329,17 @@
           calc(-50% + var(--ty, 0px))
         )
         scale(0.9);
+    }
+  }
+
+  .fade-in-soft {
+    opacity: 0;
+    animation: fade-in-soft 260ms ease-out forwards;
+  }
+
+  @keyframes fade-in-soft {
+    to {
+      opacity: 1;
     }
   }
 }

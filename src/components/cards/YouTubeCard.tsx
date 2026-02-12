@@ -1,9 +1,31 @@
+import { useEffect, useState } from 'react';
 import { Youtube, Play, ExternalLink } from 'lucide-react';
 import BentoCard from '@/components/BentoCard';
 import { useLatestVideo } from '@/hooks/useLatestVideo';
 
 const YouTubeCard = () => {
   const { title, thumbnail, link, isLoading: videoLoading } = useLatestVideo();
+  const [isStuckLoading, setIsStuckLoading] = useState(false);
+  const [thumbnailShakeId, setThumbnailShakeId] = useState(0);
+  const isVideoUnavailable = isStuckLoading && (!thumbnail || !title);
+
+  // Si après 3s on n'a toujours pas de titre/thumbnail, on affiche un état "bloqué"
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!title && !thumbnail) {
+        setIsStuckLoading(true);
+      }
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [title, thumbnail]);
+
+  // Si finalement les données arrivent, on enlève l'état bloqué
+  useEffect(() => {
+    if (title && thumbnail) {
+      setIsStuckLoading(false);
+    }
+  }, [title, thumbnail]);
 
   return (
     <BentoCard
@@ -15,32 +37,49 @@ const YouTubeCard = () => {
       
       {/* Thumbnail de la dernière vidéo */}
       <div className="relative z-10 w-full md:w-2/5 flex-shrink-0 emoji-no-selection">
-        <a 
-          href={link}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block relative aspect-video rounded-2xl overflow-hidden group"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {!videoLoading && thumbnail && (
-            <img
-              src={thumbnail}
-              alt={title}
-              className="emoji-no-selection w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            />
-          )}
-          {videoLoading && (
-            <div className="w-full h-full bg-secondary animate-pulse flex items-center justify-center">
-              <Youtube className="w-10 h-10 text-muted-foreground" />
-            </div>
-          )}
-          {/* Play overlay */}
-          <div className="absolute inset-0 flex items-center justify-center bg-background/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <div className="w-14 h-14 rounded-full bg-youtube flex items-center justify-center">
-              <Play className="w-6 h-6 text-white fill-white ml-1" />
-            </div>
+        {isVideoUnavailable ? (
+          // État "smiley pas content" : pas de lien cliquable, pas de bouton rouge
+          <div
+            key={thumbnailShakeId}
+            className="relative block aspect-video rounded-2xl overflow-hidden bg-secondary/70 flex items-center justify-center fade-in-soft thumbnail-shake cursor-not-allowed"
+            onClick={(e) => {
+              e.stopPropagation();
+              // retrigger shake animation
+              setThumbnailShakeId((prev) => prev + 1);
+            }}
+          >
+            <span className="text-4xl md:text-5xl select-none">:(</span>
           </div>
-        </a>
+        ) : (
+          <a
+            href={link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block relative aspect-video rounded-2xl overflow-hidden group"
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+          >
+            {!videoLoading && thumbnail && (
+              <img
+                src={thumbnail}
+                alt={title}
+                className="emoji-no-selection w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+            )}
+            {videoLoading && (
+              <div className="w-full h-full bg-secondary animate-pulse flex items-center justify-center">
+                <Youtube className="w-10 h-10 text-muted-foreground" />
+              </div>
+            )}
+            {/* Play overlay */}
+            <div className="absolute inset-0 flex items-center justify-center bg-background/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <div className="w-14 h-14 rounded-full bg-youtube flex items-center justify-center">
+                <Play className="w-6 h-6 text-white fill-white ml-1" />
+              </div>
+            </div>
+          </a>
+        )}
       </div>
 
       {/* Content */}
@@ -58,12 +97,20 @@ const YouTubeCard = () => {
           <h2 className="text-xl font-bold mb-2">Ma chaîne principale !!!</h2>
           
           {/* Latest video title */}
-          <div className="flex items-center gap-2 text-muted-foreground text-sm mb-4">
-            <span className="text-xs px-2 py-0.5 bg-youtube/20 text-youtube rounded-full whitespace-nowrap text-center inline-block">Dernière vidéo</span>
-            <span className="line-clamp-1">
-              {videoLoading ? 'Chargement...' : title}
-            </span>
-          </div>
+          {isVideoUnavailable ? (
+            <div className="text-muted-foreground text-sm mb-4 fade-in-soft">
+              La dernière vidéo a du mal à charger ... DAAAAMN
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 text-muted-foreground text-sm mb-4">
+              <span className="text-xs px-2 py-0.5 bg-youtube/20 text-youtube rounded-full whitespace-nowrap text-center inline-block">
+                Dernière vidéo
+              </span>
+              <span className="line-clamp-1">
+                {videoLoading ? 'Chargement...' : title}
+              </span>
+            </div>
+          )}
         </div>
 
         <div className="flex flex-wrap gap-3">
@@ -73,11 +120,21 @@ const YouTubeCard = () => {
           </button>
           
           <a
-            href={link}
+            href={isVideoUnavailable ? undefined : link}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-platform bg-secondary/50 hover:bg-secondary text-foreground"
-            onClick={(e) => e.stopPropagation()}
+            aria-disabled={isVideoUnavailable}
+            className={`btn-platform btn-no-hover-motion text-foreground ${
+              isVideoUnavailable
+                ? 'bg-secondary/70 cursor-not-allowed opacity-60'
+                : 'bg-secondary/50 hover:bg-secondary'
+            }`}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (isVideoUnavailable) {
+                e.preventDefault();
+              }
+            }}
           >
             <ExternalLink className="w-4 h-4" />
             <span>Voir la vidéo</span>
