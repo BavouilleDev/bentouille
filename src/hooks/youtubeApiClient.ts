@@ -88,6 +88,28 @@ async function fetchJson<T>(url: string): Promise<T> {
   return body as T;
 }
 
+// Convertit une durée ISO 8601 YouTube (ex: PT1H2M3S, PT9M10S, PT45S) en secondes
+function parseYouTubeDurationToSeconds(isoDuration: string | undefined): number {
+  if (!isoDuration) return 0;
+
+  const match = isoDuration.match(
+    /^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/
+  );
+
+  if (!match) return 0;
+
+  const [, h, m, s] = match;
+  const hours = h ? Number(h) : 0;
+  const minutes = m ? Number(m) : 0;
+  const seconds = s ? Number(s) : 0;
+
+  if (!Number.isFinite(hours) || !Number.isFinite(minutes) || !Number.isFinite(seconds)) {
+    return 0;
+  }
+
+  return hours * 3600 + minutes * 60 + seconds;
+}
+
 async function fetchYouTubeDataFromApi(): Promise<YouTubeData> {
   // 1) Récupérer les stats de la chaîne (abonnés)
   const channelsUrl = new URL('https://www.googleapis.com/youtube/v3/channels');
@@ -95,16 +117,15 @@ async function fetchYouTubeDataFromApi(): Promise<YouTubeData> {
   channelsUrl.searchParams.set('id', CHANNEL_ID);
   channelsUrl.searchParams.set('part', 'statistics');
 
-  // 2) Récupérer la dernière vidéo (hors Shorts) via search
+  // 2) Récupérer les dernières vidéos via search
   const searchUrl = new URL('https://www.googleapis.com/youtube/v3/search');
   searchUrl.searchParams.set('key', API_KEY);
   searchUrl.searchParams.set('channelId', CHANNEL_ID);
   searchUrl.searchParams.set('part', 'snippet,id');
   searchUrl.searchParams.set('order', 'date');
-  searchUrl.searchParams.set('maxResults', '1');
+  // On prend plusieurs résultats pour pouvoir filtrer ensuite par durée
+  searchUrl.searchParams.set('maxResults', '15');
   searchUrl.searchParams.set('type', 'video');
-  // Filtrer les Shorts en privilégiant les vidéos de durée "medium"
-  searchUrl.searchParams.set('videoDuration', 'medium');
 
   const [channelsData, searchData] = await Promise.all([
     fetchJson<{
@@ -127,19 +148,65 @@ async function fetchYouTubeDataFromApi(): Promise<YouTubeData> {
     ? Number(subscriberCountRaw)
     : null;
 
-  const item = searchData.items?.[0];
-
   let latestVideo: YouTubeLatestVideo | null = null;
-  if (item && item.id?.videoId) {
-    const videoId = item.id.videoId;
-    const rawTitle = item.snippet?.title || 'Dernière vidéo';
-    latestVideo = {
-      title: decodeHtmlEntities(rawTitle),
-      videoId,
-      link: `https://youtube.com/watch?v=${videoId}`,
-      thumbnail: formatThumbnailFromId(videoId),
-      published: item.snippet?.publishedAt || '',
-    };
+
+  // 3) Filtrer côté code pour garder la première vidéo avec une durée >= 8 minutes
+  const searchItems = searchData.items ?? [];
+  const videoIds = searchItems
+    .map((item) => item.id?.videoId)
+    .filter((id): id is string => Boolean(id));
+
+  if (videoIds.length > 0) {
+    const videosUrl = new URL('https://www.googleapis.com/youtube/v3/videos');
+    videosUrl.searchParams.set('key', API_KEY);
+    videosUrl.searchParams.set('id', videoIds.join(','));
+    videosUrl.searchParams.set('part', 'contentDetails,snippet');
+
+    const videosData = await fetchJson<{
+      items: Array<{
+        id?: string;
+        contentDetails?: { duration?: string };
+        snippet?: {
+          title?: string;
+          publishedAt?: string;
+        };
+      }>;
+    }>(videosUrl.toString());
+
+    const MIN_DURATION_SECONDS = 8 * 60; // 8 minutes
+
+    const longVideo = videosData.items.find((video) => {
+      const durationSeconds = parseYouTubeDurationToSeconds(
+        video.contentDetails?.duration
+      );
+      return durationSeconds >= MIN_DURATION_SECONDS;
+    });
+
+    if (longVideo && longVideo.id) {
+      const matchingSearchItem = searchItems.find(
+        (item) => item.id?.videoId === longVideo.id
+      );
+
+      const rawTitle =
+        longVideo.snippet?.title ||
+        matchingSearchItem?.snippet?.title ||
+        'Dernière vidéo';
+
+      const published =
+        longVideo.snippet?.publishedAt ||
+        matchingSearchItem?.snippet?.publishedAt ||
+        '';
+
+      const videoId = longVideo.id;
+
+      latestVideo = {
+        title: decodeHtmlEntities(rawTitle),
+        videoId,
+        link: `https://youtube.com/watch?v=${videoId}`,
+        thumbnail: formatThumbnailFromId(videoId),
+        published,
+      };
+    }
   }
 
   const result: YouTubeData = {
