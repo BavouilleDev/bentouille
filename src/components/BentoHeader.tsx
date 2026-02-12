@@ -84,19 +84,20 @@ const BentoHeader = () => {
         </p>
         <p className="text-foreground/90 pt-2 flex items-center justify-center gap-2">
           <Emoji name="television" width={18} className="emoji-no-selection" />
-          <span>
-            Créateur de contenu (
-            <span className="text-primary font-semibold">
-              {formattedSubscribers || '14k'}
+          <span className="inline-flex items-center gap-1">
+            <span>
+              Créateur de contenu (
+              <span className="text-primary font-semibold">
+                {formattedSubscribers || '14k'}
+              </span>
+              {' '}sur ytb
             </span>
-            {' '}sur ytb{' '}
-          <button
-            type="button"
-            onClick={handleStarClick}
-            className="relative inline-flex items-center justify-center align-middle cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded-full"
-            aria-label="Petit feu d'artifice de confettis"
-          >
-            <span className="relative emoji-no-selection inline-flex items-center justify-center">
+            <button
+              type="button"
+              onClick={handleStarClick}
+              className="relative inline-flex items-center justify-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded-full"
+              aria-label="Petit feu d'artifice de confettis"
+            >
               <Emoji
                 name="star"
                 width={18}
@@ -105,9 +106,8 @@ const BentoHeader = () => {
               {confettiBursts.map((id) => (
                 <ConfettiBurst key={id} />
               ))}
-            </span>
-          </button>
-          )
+            </button>
+            <span>)</span>
           </span>
         </p>
       </div>
