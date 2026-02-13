@@ -124,9 +124,9 @@ const YouTubeCard = () => {
             target="_blank"
             rel="noopener noreferrer"
             aria-disabled={isVideoUnavailable}
-            className={`btn-platform btn-no-hover-motion text-foreground ${
+            className={`btn-platform text-foreground ${
               isVideoUnavailable
-                ? 'bg-secondary/70 cursor-not-allowed opacity-60'
+                ? 'btn-no-hover-motion bg-secondary/70 cursor-not-allowed opacity-60'
                 : 'bg-secondary/50 hover:bg-secondary'
             }`}
             onClick={(e) => {
